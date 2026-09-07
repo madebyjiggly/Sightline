@@ -15,6 +15,10 @@ switches to a **live Basiq sandbox** with a few steps.
 | :---: | :---: | :---: |
 | ![Home screen, light theme](docs/screenshots/home-light.png) | ![Home screen, dark theme](docs/screenshots/home-dark.png) | ![Calendar month view with daily heatmap](docs/screenshots/calendar-month.png) |
 
+| Goals | Cards |
+| :---: | :---: |
+| ![Goals with a guided planner](docs/screenshots/goals.png) | ![Accounts and cards](docs/screenshots/cards.png) |
+
 ---
 
 ## What's here
