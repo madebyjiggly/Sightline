@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Xcode build output & user data
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# Node proxy
+server/node_modules/
+server/.env
+server/.data/
+
+# Env files
+*.env
+!*.env.example
