@@ -1,6 +1,11 @@
+<img src="docs/screenshots/app-icon.png" width="88" alt="Sightline app icon" align="left" hspace="14" />
+
 # Sightline — iOS Budgeting App (Australia)
 
 [![CI](https://github.com/madebyjiggly/Sightline/actions/workflows/ci.yml/badge.svg)](https://github.com/madebyjiggly/Sightline/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-0E7C66.svg)](LICENSE)
+
+<br clear="left" />
 
 A native SwiftUI iPhone app that links your bank accounts via **Basiq** (Australia's
 CDR / open-banking network), tracks live spending against budgets you set, and keeps
@@ -8,6 +13,9 @@ your financial goals in view.
 
 It runs **right now on realistic AUD sample data** — no keys or backend required — and
 switches to a **live Basiq sandbox** with a few steps.
+
+Heading for the App Store? See [`docs/APP_STORE.md`](docs/APP_STORE.md) for what's done and
+what still needs an Apple Developer account. Licensed under [MIT](LICENSE).
 
 ## Screenshots
 
