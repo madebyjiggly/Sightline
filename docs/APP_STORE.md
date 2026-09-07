@@ -19,7 +19,10 @@ an Apple Developer account, signing, or the App Store Connect website).
    automatic signing. Add the **Background Modes → Background fetch** capability (the code
    + Info.plist already expect it) and **Push? no** (we use local notifications only).
 3. **App Store Connect** — create the app record at <https://appstoreconnect.apple.com>:
-   name, subtitle, category (Finance), privacy policy URL (**required**), support URL.
+   name, subtitle, category (Finance), **privacy policy URL** (required) and **support URL**.
+   Drafts are ready in [`PRIVACY.md`](PRIVACY.md) and [`SUPPORT.md`](SUPPORT.md) — fill in your
+   contact email, then host them (easiest: enable **GitHub Pages** for `/docs` in the repo
+   settings, giving `https://madebyjiggly.github.io/Sightline/PRIVACY`).
 4. **Privacy nutrition label** — answer the questionnaire: you collect *email* (account) and
    *financial info* (budgets/transactions via your server), used for app functionality, not
    tracking. Keep it consistent with `PrivacyInfo.xcprivacy`.
@@ -31,6 +34,27 @@ an Apple Developer account, signing, or the App Store Connect website).
    Basiq. Point the app's proxy URL at it.
 7. **Archive & upload** — Xcode → *Product → Archive* → *Distribute App → App Store Connect*
    (needs signing from step 2). Then submit for review in App Store Connect.
+
+## Suggested listing copy (draft — tweak freely)
+- **Name:** Sightline — Budget Tracker
+- **Subtitle:** See your money clearly
+- **Keywords:** budget,spending,money,finance,tracker,savings,bank,expenses,budgeting,AUD
+- **Promotional text:** Track spending against your budgets, set goals, and get alerted
+  before a category goes over.
+- **Description:**
+  > Sightline gives you a clear line of sight on your money. Set a monthly budget for each
+  > category, then watch your spending update against it in real time — green when you're
+  > under, red when you're over. Connect your bank securely through Basiq (open banking) or
+  > explore with sample data first.
+  >
+  > • Budgets with instant under/over status
+  > • Your own categories with automatic transaction matching
+  > • Day / week / month calendar with a spending heatmap
+  > • Savings goals with a guided planner
+  > • Over-budget alerts — all on-device
+  > • Light & dark themes
+  >
+  > Your bank login is never seen by Sightline — you sign in on your bank's own page.
 
 ## Notes
 - The app runs on sample data with no backend, so it's demoable without any of the above.
