@@ -9,6 +9,12 @@ your financial goals in view.
 It runs **right now on realistic AUD sample data** — no keys or backend required — and
 switches to a **live Basiq sandbox** with a few steps.
 
+## Screenshots
+
+| Home (light) | Home (dark) | Calendar |
+| :---: | :---: | :---: |
+| ![Home screen, light theme](docs/screenshots/home-light.png) | ![Home screen, dark theme](docs/screenshots/home-dark.png) | ![Calendar month view with daily heatmap](docs/screenshots/calendar-month.png) |
+
 ---
 
 ## What's here
