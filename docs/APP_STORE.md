@@ -23,8 +23,9 @@ an Apple Developer account, signing, or the App Store Connect website).
 4. **Privacy nutrition label** — answer the questionnaire: you collect *email* (account) and
    *financial info* (budgets/transactions via your server), used for app functionality, not
    tracking. Keep it consistent with `PrivacyInfo.xcprivacy`.
-5. **Screenshots** — 6.9" (iPhone 17 Pro Max) and 6.5" required. Reuse/retake the shots in
-   `docs/screenshots/` at the required sizes.
+5. **Screenshots** — ready-to-upload 6.9" (1320×2868) shots are in `docs/appstore/`
+   (Home, Calendar, Goals, Cards). App Store Connect also asks for a 6.5" set — generate
+   those from an iPhone 15 Plus / 14 Plus simulator the same way if needed.
 6. **Backend for production** — the Node proxy in `server/` must be deployed to a public
    HTTPS host (not localhost), with a **production** Basiq key and CDR accreditation via
    Basiq. Point the app's proxy URL at it.
