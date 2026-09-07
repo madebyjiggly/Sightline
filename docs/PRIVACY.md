@@ -3,8 +3,7 @@
 _Last updated: 7 September 2026_
 
 Sightline ("the app", "we") helps you track your spending against budgets. This
-policy explains what data the app handles and how. **Fill in the contact email
-and your legal/entity name before publishing.**
+policy explains what data the app handles and how.
 
 ## What we handle
 
@@ -47,4 +46,4 @@ We may update this policy; material changes will be noted here with a new date.
 
 ## Contact
 
-Questions or deletion requests: **your-support-email@example.com**
+Questions or deletion requests: **jaydenletran03@gmail.com**

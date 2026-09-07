@@ -2,7 +2,7 @@
 
 Need a hand with Sightline? We're happy to help.
 
-**Contact:** your-support-email@example.com _(replace before publishing)_
+**Contact:** jaydenletran03@gmail.com
 
 ## Common questions
 
