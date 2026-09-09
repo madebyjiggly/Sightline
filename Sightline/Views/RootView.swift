@@ -2,20 +2,26 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var store: AppStore
-    @State private var tab = 0
+    @State private var tab: AppTab = .home
 
     var body: some View {
         TabView(selection: $tab) {
             HomeView()
-                .tabItem { Label("Home", systemImage: "house.fill") }.tag(0)
+                .tag(AppTab.home)
+                .toolbar(.hidden, for: .tabBar)
             CalendarView()
-                .tabItem { Label("Calendar", systemImage: "calendar") }.tag(1)
+                .tag(AppTab.calendar)
+                .toolbar(.hidden, for: .tabBar)
             GoalsView()
-                .tabItem { Label("Goals", systemImage: "target") }.tag(2)
+                .tag(AppTab.goals)
+                .toolbar(.hidden, for: .tabBar)
             CardsView()
-                .tabItem { Label("Cards", systemImage: "creditcard.fill") }.tag(3)
+                .tag(AppTab.cards)
+                .toolbar(.hidden, for: .tabBar)
         }
         .tint(Theme.accent)
+        // Our own floating bar; safeAreaInset keeps content from scrolling under it.
+        .safeAreaInset(edge: .bottom) { FloatingTabBar(selection: $tab) }
         .onChange(of: tab) { _, _ in Haptics.select() }
     }
 }
