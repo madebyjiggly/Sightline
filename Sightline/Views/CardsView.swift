@@ -71,8 +71,20 @@ struct BankCardView: View {
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing))
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
+        // Glossy highlights so the cards read as physical plastic.
+        .overlay(alignment: .topTrailing) {
+            Circle().fill(.white.opacity(0.08)).frame(width: 170, height: 170).offset(x: 50, y: -70)
+        }
+        .overlay(alignment: .bottomLeading) {
+            Circle().fill(.white.opacity(0.05)).frame(width: 220, height: 220).offset(x: -90, y: 110)
+        }
+        .overlay(
+            LinearGradient(colors: [.white.opacity(0.10), .clear, .clear],
+                           startPoint: .topLeading, endPoint: .bottomTrailing)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).stroke(.white.opacity(0.14), lineWidth: 1))
+        .shadow(color: .black.opacity(0.18), radius: 18, x: 0, y: 10)
     }
 
     private func cardStat(_ k: String, _ v: String, alignment: HorizontalAlignment = .leading) -> some View {

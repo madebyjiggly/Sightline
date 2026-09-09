@@ -40,9 +40,13 @@ struct DonutBreakdown: View {
     var body: some View {
         HStack(spacing: 16) {
             ZStack {
+                // Segmented look: a hairline gap between slices (flat caps so small
+                // slices stay crisp instead of bulging into their neighbours).
                 ForEach(segments()) { seg in
+                    let gap: CGFloat = 0.006
+                    let end = seg.start + (seg.end - seg.start) * progress
                     Circle()
-                        .trim(from: seg.start, to: seg.start + (seg.end - seg.start) * progress)
+                        .trim(from: min(seg.start + gap, end), to: max(end - gap, seg.start + gap))
                         .stroke(seg.color, style: StrokeStyle(lineWidth: 16, lineCap: .butt))
                         .rotationEffect(.degrees(-90))
                 }

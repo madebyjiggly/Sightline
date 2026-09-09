@@ -91,7 +91,12 @@ struct CalendarView: View {
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.heroGradient)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .overlay(alignment: .topTrailing) {
+            Circle().fill(.white.opacity(0.07)).frame(width: 170, height: 170).offset(x: 55, y: -75)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(.white.opacity(0.12), lineWidth: 1))
+        .shadow(color: Theme.heroTop.opacity(0.32), radius: 22, x: 0, y: 12)
     }
 
     /// Days-in-month and the Monday-based offset of the 1st.

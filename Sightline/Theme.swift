@@ -51,6 +51,10 @@ enum Theme {
     static var heroGradient: LinearGradient {
         LinearGradient(colors: [heroTop, heroBottom], startPoint: .topLeading, endPoint: .bottomTrailing)
     }
+    static let heroAccent = Color(hex: "3ACAA4")   // soft highlight glow on the hero
+
+    // Shape language
+    static let cardRadius: CGFloat = 22
 
     // Type
     static func display(_ size: CGFloat, _ weight: Font.Weight = .bold) -> Font {

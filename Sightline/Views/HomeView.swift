@@ -30,9 +30,12 @@ struct HomeView: View {
                 HStack {
                     HStack(spacing: 9) {
                         Text("S").font(Theme.display(16, .heavy)).foregroundStyle(.white)
-                            .frame(width: 30, height: 30)
-                            .background(Theme.accent, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-                        Text("Sightline").font(Theme.display(22, .heavy)).foregroundStyle(Theme.ink)
+                            .frame(width: 32, height: 32)
+                            .background(Theme.heroGradient, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(.white.opacity(0.25), lineWidth: 1))
+                            .shadow(color: Theme.heroTop.opacity(0.35), radius: 8, y: 4)
+                        Text("Sightline").font(Theme.display(23, .heavy)).tracking(-0.5).foregroundStyle(Theme.ink)
                     }
                     Spacer(minLength: 6)
                     Button { Haptics.light(); showConnection = true } label: { SourceBadge() }
@@ -83,7 +86,7 @@ struct HomeView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
-        .background(Theme.bg)
+        .background(AppBackground())
         .refreshable {
             Haptics.select()
             await store.load()
@@ -145,17 +148,29 @@ struct HomeView: View {
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.heroGradient)
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        // Decorative light: a soft glow top-left and a translucent orb top-right.
+        .overlay(alignment: .topTrailing) {
+            Circle().fill(.white.opacity(0.07)).frame(width: 190, height: 190).offset(x: 60, y: -80)
+        }
+        .overlay(alignment: .topLeading) {
+            RadialGradient(colors: [Theme.heroAccent.opacity(0.35), .clear],
+                           center: .center, startRadius: 0, endRadius: 170)
+                .frame(width: 340, height: 340).offset(x: -110, y: -140)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(.white.opacity(0.12), lineWidth: 1))
+        .shadow(color: Theme.heroTop.opacity(0.35), radius: 24, x: 0, y: 14)
     }
 
     private func heroChip(_ k: String, _ v: String) -> some View {
         VStack(alignment: .leading, spacing: 3) {
-            Text(k).font(.system(size: 10.5)).foregroundStyle(.white.opacity(0.85))
+            Text(k).font(.system(size: 10.5, weight: .medium)).foregroundStyle(.white.opacity(0.82))
             Text(v).font(Theme.mono(16)).foregroundStyle(.white)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 12).padding(.vertical, 10)
         .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(.white.opacity(0.22), lineWidth: 1))
     }
 
     private func healthCard(_ snap: FinanceSnapshot) -> some View {

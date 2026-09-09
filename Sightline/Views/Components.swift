@@ -1,5 +1,32 @@
 import SwiftUI
 
+// MARK: - App background (soft gradient wash instead of a flat fill)
+struct AppBackground: View {
+    var body: some View {
+        ZStack {
+            Theme.bg
+            RadialGradient(colors: [Theme.accent.opacity(0.12), .clear],
+                           center: .init(x: 0.15, y: 0.05), startRadius: 0, endRadius: 420)
+            RadialGradient(colors: [Theme.heroAccent.opacity(0.06), .clear],
+                           center: .init(x: 0.95, y: 0.35), startRadius: 0, endRadius: 360)
+        }
+        .ignoresSafeArea()
+    }
+}
+
+// MARK: - Layered card shadow (tight contact + diffuse ambient)
+struct CardShadow: ViewModifier {
+    var strength: CGFloat = 1
+    func body(content: Content) -> some View {
+        content
+            .shadow(color: .black.opacity(0.05 * strength), radius: 2, x: 0, y: 1)
+            .shadow(color: .black.opacity(0.08 * strength), radius: 22, x: 0, y: 12)
+    }
+}
+extension View {
+    func cardShadow(_ strength: CGFloat = 1) -> some View { modifier(CardShadow(strength: strength)) }
+}
+
 // MARK: - Card container
 struct CardBox<Content: View>: View {
     var padding: CGFloat = 16
@@ -9,9 +36,10 @@ struct CardBox<Content: View>: View {
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Theme.line, lineWidth: 1))
-            .shadow(color: Color.black.opacity(0.06), radius: 14, x: 0, y: 8)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                .stroke(Theme.line.opacity(0.7), lineWidth: 1))
+            .cardShadow()
     }
 }
 
@@ -21,16 +49,20 @@ struct SectionHeader: View {
     var link: String? = nil
     var onLink: (() -> Void)? = nil
     var body: some View {
-        HStack {
-            Text(title).font(Theme.display(17)).foregroundStyle(Theme.ink)
+        HStack(alignment: .firstTextBaseline) {
+            Text(title).font(Theme.display(18, .heavy)).tracking(-0.2).foregroundStyle(Theme.ink)
             Spacer()
             if let link {
                 Button(action: { onLink?() }) {
                     Text(link).font(.system(size: 12, weight: .bold)).foregroundStyle(Theme.accentInk)
+                        .padding(.horizontal, 10).padding(.vertical, 5)
+                        .background(Theme.accentSoft.opacity(0.7), in: Capsule())
                 }
+                .buttonStyle(.pressable)
             }
         }
         .padding(.horizontal, 2)
+        .padding(.top, 4)
     }
 }
 
@@ -46,19 +78,28 @@ struct StatusPill: View {
     }
 }
 
-// MARK: - Progress bar
+// MARK: - Progress bar (gradient fill, optional milestone notches)
 struct ProgressBar: View {
     let fraction: Double
     let color: Color
-    var height: CGFloat = 8
+    var height: CGFloat = 9
     var milestones: [Double] = []   // fractions (0–1) to mark with a notch
     @State private var shown: Double = 0
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
                 Capsule().fill(Theme.surface3)
-                Capsule().fill(color)
+                Capsule()
+                    .fill(LinearGradient(colors: [color.opacity(0.78), color],
+                                         startPoint: .leading, endPoint: .trailing))
                     .frame(width: max(height, geo.size.width * shown))
+                    .overlay(
+                        Capsule().fill(LinearGradient(colors: [.white.opacity(0.28), .clear],
+                                                      startPoint: .top, endPoint: .bottom))
+                            .frame(width: max(height, geo.size.width * shown), height: height / 2)
+                            .offset(y: -height / 4),
+                        alignment: .leading
+                    )
                 ForEach(milestones, id: \.self) { m in
                     Capsule().fill(Theme.surface)
                         .frame(width: 2, height: max(2, height - 3))
@@ -87,8 +128,9 @@ struct StatTile: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
         .background(Theme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Theme.line, lineWidth: 1))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(Theme.line.opacity(0.7), lineWidth: 1))
+        .cardShadow(0.6)
     }
 }
 
@@ -121,13 +163,13 @@ struct Screen<Content: View>: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                Text(title).font(Theme.display(26, .heavy)).foregroundStyle(Theme.ink)
+                Text(title).font(Theme.display(28, .heavy)).tracking(-0.4).foregroundStyle(Theme.ink)
                     .padding(.top, 4)
                 content
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 24)
         }
-        .background(Theme.bg)
+        .background(AppBackground())
     }
 }
