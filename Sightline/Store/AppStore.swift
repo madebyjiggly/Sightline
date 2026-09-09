@@ -241,17 +241,28 @@ final class AppStore: ObservableObject {
         rebuildGoals()
     }
 
-    /// Add savings toward a goal. Returns true if this contribution just completed it.
+    /// Add savings toward a goal. Returns the event to celebrate (milestone/completion).
     @discardableResult
-    func contributeToGoal(_ goal: Goal, amount: Double) -> Bool {
+    func contributeToGoal(_ goal: Goal, amount: Double) -> GoalEvent {
         let all = (try? context.fetch(FetchDescriptor<GoalItem>())) ?? []
-        guard let item = all.first(where: { $0.name == goal.name && $0.target == goal.target }) else { return false }
-        let wasComplete = item.saved >= item.target
+        guard let item = all.first(where: { $0.name == goal.name && $0.target == goal.target }),
+              item.target > 0 else { return .none }
+        let oldPct = item.saved / item.target * 100
         item.saved = min(item.target, item.saved + max(0, amount))
-        let nowComplete = item.saved >= item.target
+        let newPct = item.saved / item.target * 100
         save()
         rebuildGoals()
-        return nowComplete && !wasComplete
+        if oldPct < 100, newPct >= 100 { return .completed }
+        for m in [75, 50, 25] where oldPct < Double(m) && newPct >= Double(m) { return .milestone(m) }
+        return .none
+    }
+
+    /// How many days this month stayed within the daily budget allowance.
+    var daysUnderBudget: (under: Int, total: Int) {
+        guard let heat = snapshot?.monthDailyHeat, totalBudget > 0 else { return (0, 0) }
+        let allowance = totalBudget / 30
+        let under = heat.values.filter { $0 <= allowance }.count
+        return (under, heat.count)
     }
 
     func deleteGoal(_ goal: Goal) {

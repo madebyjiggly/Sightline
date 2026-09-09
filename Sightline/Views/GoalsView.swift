@@ -5,12 +5,15 @@ struct GoalsView: View {
     @State private var newGoalText = ""
     @State private var celebrate = false
     @State private var confettiID = UUID()
+    @State private var milestoneText = ""
+    @State private var showMilestone = false
+    @State private var milestoneToken = 0
 
     var body: some View {
         Screen(title: "Goals") {
             SectionHeader(title: "Your goals")
             ForEach(store.goals) { goal in
-                GoalCard(goal: goal, onComplete: celebrateGoal)
+                GoalCard(goal: goal, onEvent: { handle($0, goal: goal) })
                     .contextMenu {
                         Button(role: .destructive) { store.deleteGoal(goal) } label: {
                             Label("Delete goal", systemImage: "trash")
@@ -68,6 +71,39 @@ struct GoalsView: View {
                 ConfettiView().id(confettiID).frame(height: 460).allowsHitTesting(false)
             }
         }
+        .overlay {
+            VStack {
+                Spacer()
+                Text(milestoneText)
+                    .font(.system(size: 13, weight: .bold)).foregroundStyle(.white)
+                    .padding(.horizontal, 16).padding(.vertical, 11)
+                    .background(Theme.accent, in: Capsule())
+                    .shadow(color: .black.opacity(0.22), radius: 12, y: 5)
+                    .opacity(showMilestone ? 1 : 0)
+                    .scaleEffect(showMilestone ? 1 : 0.9)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.7), value: showMilestone)
+                    .padding(.bottom, 120)
+            }
+            .allowsHitTesting(false)
+        }
+    }
+
+    private func handle(_ event: GoalEvent, goal: Goal) {
+        switch event {
+        case .completed:
+            celebrateGoal()
+        case .milestone(let pct):
+            Haptics.medium()
+            milestoneText = "You're \(pct)% to \(goal.name)! 🎉"
+            showMilestone = true
+            milestoneToken += 1
+            let token = milestoneToken
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.6) {
+                if token == milestoneToken { showMilestone = false }
+            }
+        case .none:
+            break
+        }
     }
 
     private func celebrateGoal() {
@@ -91,7 +127,7 @@ struct GoalsView: View {
 struct GoalCard: View {
     @EnvironmentObject var store: AppStore
     let goal: Goal
-    var onComplete: () -> Void = {}
+    var onEvent: (GoalEvent) -> Void = { _ in }
 
     private var complete: Bool { goal.percent >= 100 }
     private let quickAmounts: [Double] = [50, 100, 250]
@@ -119,7 +155,8 @@ struct GoalCard: View {
                 }
                 .padding(.top, 4)
 
-                ProgressBar(fraction: goal.fraction, color: Theme.good)
+                ProgressBar(fraction: goal.fraction, color: Theme.good,
+                            milestones: complete ? [] : [0.25, 0.5, 0.75])
 
                 if complete {
                     Label("Goal reached — nice work!", systemImage: "checkmark.seal.fill")
@@ -131,7 +168,7 @@ struct GoalCard: View {
                         ForEach(quickAmounts, id: \.self) { amt in
                             Button {
                                 Haptics.light()
-                                if store.contributeToGoal(goal, amount: amt) { onComplete() }
+                                onEvent(store.contributeToGoal(goal, amount: amt))
                             } label: {
                                 Text("+\(Money.aud(amt))")
                                     .font(.system(size: 12, weight: .bold)).foregroundStyle(Theme.accentInk)

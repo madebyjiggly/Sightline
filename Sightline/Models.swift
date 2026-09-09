@@ -126,6 +126,13 @@ struct WeekBucket: Identifiable, Hashable {
     var total: Double
 }
 
+/// The result of contributing toward a goal (drives milestone nudges + confetti).
+enum GoalEvent: Equatable {
+    case none
+    case milestone(Int)   // crossed 25 / 50 / 75%
+    case completed        // reached 100%
+}
+
 /// A category's definition sent to the proxy so it can tag live transactions.
 struct CategoryRule: Codable {
     let key: String

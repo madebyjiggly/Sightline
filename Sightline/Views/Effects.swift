@@ -61,6 +61,39 @@ struct AnimatedAUD: View {
     }
 }
 
+// MARK: - Daily streak card
+struct StreakCard: View {
+    @EnvironmentObject var store: AppStore
+    @EnvironmentObject var streak: StreakManager
+
+    var body: some View {
+        let days = store.daysUnderBudget
+        return CardBox {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle().fill(Theme.warnSoft).frame(width: 48, height: 48)
+                    Text("🔥").font(.system(size: 24))
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 5) {
+                        AnimatedInt(value: streak.count).font(Theme.display(20)).foregroundStyle(Theme.ink)
+                        Text("day streak").font(.system(size: 13, weight: .semibold)).foregroundStyle(Theme.muted)
+                    }
+                    if days.total > 0 {
+                        Text("Under budget on \(days.under) of \(days.total) days this month")
+                            .font(.system(size: 12)).foregroundStyle(Theme.muted)
+                            .fixedSize(horizontal: false, vertical: true)
+                    } else {
+                        Text("Check in daily to keep it going")
+                            .font(.system(size: 12)).foregroundStyle(Theme.muted)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+        }
+    }
+}
+
 // MARK: - Lightweight confetti (no library)
 struct ConfettiView: View {
     private struct Piece: Identifiable {

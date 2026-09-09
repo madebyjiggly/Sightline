@@ -7,6 +7,7 @@ struct SightlineApp: App {
     @StateObject private var store: AppStore
     @StateObject private var theme = ThemeManager()
     @StateObject private var auth = AuthManager.shared
+    @StateObject private var streak = StreakManager.shared
     private let notifier = NotificationManager.shared
     @Environment(\.scenePhase) private var scenePhase
 
@@ -37,10 +38,12 @@ struct SightlineApp: App {
                 .environmentObject(notifier)
                 .environmentObject(theme)
                 .environmentObject(auth)
+                .environmentObject(streak)
                 .tint(Theme.accent)
                 .preferredColorScheme(theme.mode.colorScheme)
                 .task {
                     await store.load()
+                    streak.recordVisit()
                     BackgroundRefresh.schedule()
                 }
         }
@@ -53,6 +56,7 @@ struct SightlineApp: App {
         // Re-arm a wake-up whenever the app is sent to the background.
         .onChange(of: scenePhase) { _, phase in
             if phase == .background { BackgroundRefresh.schedule() }
+            if phase == .active { streak.recordVisit() }
         }
     }
 }

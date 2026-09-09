@@ -44,6 +44,7 @@ struct HomeView: View {
                 if let snap = store.snapshot {
                     heroCard(snap)
                     healthCard(snap)
+                    StreakCard()
 
                     SectionHeader(title: "Where it's going")
                     CardBox { DonutBreakdown(categories: store.categories) }

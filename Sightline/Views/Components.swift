@@ -51,6 +51,7 @@ struct ProgressBar: View {
     let fraction: Double
     let color: Color
     var height: CGFloat = 8
+    var milestones: [Double] = []   // fractions (0–1) to mark with a notch
     @State private var shown: Double = 0
     var body: some View {
         GeometryReader { geo in
@@ -58,6 +59,11 @@ struct ProgressBar: View {
                 Capsule().fill(Theme.surface3)
                 Capsule().fill(color)
                     .frame(width: max(height, geo.size.width * shown))
+                ForEach(milestones, id: \.self) { m in
+                    Capsule().fill(Theme.surface)
+                        .frame(width: 2, height: max(2, height - 3))
+                        .position(x: geo.size.width * m, y: height / 2)
+                }
             }
         }
         .frame(height: height)
