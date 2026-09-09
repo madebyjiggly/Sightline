@@ -74,18 +74,24 @@ struct StreakCard: View {
                     Circle().fill(Theme.warnSoft).frame(width: 48, height: 48)
                     Text("🔥").font(.system(size: 24))
                 }
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 5) {
                         AnimatedInt(value: streak.count).font(Theme.display(20)).foregroundStyle(Theme.ink)
                         Text("day streak").font(.system(size: 13, weight: .semibold)).foregroundStyle(Theme.muted)
+                        if !streak.earnedMilestones.isEmpty {
+                            Text(streak.earnedMilestones.map(\.emoji).joined())
+                                .font(.system(size: 14)).padding(.leading, 2)
+                        }
                     }
                     if days.total > 0 {
                         Text("Under budget on \(days.under) of \(days.total) days this month")
                             .font(.system(size: 12)).foregroundStyle(Theme.muted)
                             .fixedSize(horizontal: false, vertical: true)
-                    } else {
-                        Text("Check in daily to keep it going")
-                            .font(.system(size: 12)).foregroundStyle(Theme.muted)
+                    }
+                    if let next = streak.nextMilestone {
+                        let left = next.days - streak.count
+                        Text("\(left) more day\(left == 1 ? "" : "s") to \(next.emoji) \(next.title)")
+                            .font(.system(size: 11.5, weight: .semibold)).foregroundStyle(Theme.accentInk)
                     }
                 }
                 Spacer(minLength: 0)

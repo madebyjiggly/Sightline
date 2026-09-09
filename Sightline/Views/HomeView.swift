@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var store: AppStore
+    @EnvironmentObject var streak: StreakManager
     @State private var editing: BudgetCategory?
     @State private var showNewCategory = false
     @State private var showManage = false
@@ -95,6 +96,16 @@ struct HomeView: View {
         }
         .onChange(of: store.isLoading) { _, loading in if !loading { celebrateIfUnder() } }
         .onAppear { celebrateIfUnder() }
+        // Streak badge earned → confetti + reward popup.
+        .onChange(of: streak.newMilestone) { _, m in
+            if m != nil { confettiID = UUID(); celebrate = true; Haptics.success() }
+        }
+        .overlay {
+            if let m = streak.newMilestone {
+                StreakRewardPopup(milestone: m, streakDays: streak.count) { streak.newMilestone = nil }
+                    .transition(.opacity)
+            }
+        }
         .sheet(item: $editing) { cat in BudgetEditor(category: cat) }
         .sheet(isPresented: $showNewCategory) { CategoryCreatorSheet() }
         .sheet(isPresented: $showManage) { ManageCategoriesSheet() }
