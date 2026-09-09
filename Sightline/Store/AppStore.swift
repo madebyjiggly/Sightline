@@ -38,6 +38,22 @@ final class AppStore: ObservableObject {
     var leftToSpend: Double { totalBudget - totalSpent }
     var overallStatus: BudgetStatus { BudgetStatus.evaluate(spent: totalSpent, budget: totalBudget) }
 
+    /// A gamified 0–100 "budget health" score — high when comfortably under budget,
+    /// dropping as you approach and exceed it.
+    var healthScore: Int {
+        guard totalBudget > 0 else { return 100 }
+        let ratio = totalSpent / totalBudget
+        return min(100, max(0, Int(((1 - ratio) * 120 + 60).rounded())))
+    }
+    var healthBand: (label: String, kind: StatusKind) {
+        switch healthScore {
+        case 80...:    return ("Excellent", .good)
+        case 60..<80:  return ("Healthy", .good)
+        case 40..<60:  return ("Watch it", .warn)
+        default:       return ("Over budget", .bad)
+        }
+    }
+
     // MARK: - Loading
     func load() async {
         isLoading = true
@@ -223,6 +239,19 @@ final class AppStore: ObservableObject {
                                 dateLabel: dateLabel, perWeek: 0, aheadOfPace: false))
         save()
         rebuildGoals()
+    }
+
+    /// Add savings toward a goal. Returns true if this contribution just completed it.
+    @discardableResult
+    func contributeToGoal(_ goal: Goal, amount: Double) -> Bool {
+        let all = (try? context.fetch(FetchDescriptor<GoalItem>())) ?? []
+        guard let item = all.first(where: { $0.name == goal.name && $0.target == goal.target }) else { return false }
+        let wasComplete = item.saved >= item.target
+        item.saved = min(item.target, item.saved + max(0, amount))
+        let nowComplete = item.saved >= item.target
+        save()
+        rebuildGoals()
+        return nowComplete && !wasComplete
     }
 
     func deleteGoal(_ goal: Goal) {

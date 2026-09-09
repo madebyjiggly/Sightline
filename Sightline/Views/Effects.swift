@@ -35,6 +35,18 @@ private struct CountUpModifier: AnimatableModifier {
     func body(content: Content) -> some View { Text(format(value)) }
 }
 
+/// An integer label that counts up from 0 on appear and animates on change.
+struct AnimatedInt: View {
+    let value: Int
+    @State private var shown: Double = 0
+    var body: some View {
+        Text(verbatim: "0")
+            .modifier(CountUpModifier(value: shown) { "\(Int($0.rounded()))" })
+            .onAppear { withAnimation(.easeOut(duration: 1.0)) { shown = Double(value) } }
+            .onChange(of: value) { _, v in withAnimation(.easeOut(duration: 0.6)) { shown = Double(v) } }
+    }
+}
+
 /// A currency label that rolls up from 0 on appear and animates on change.
 struct AnimatedAUD: View {
     let value: Double

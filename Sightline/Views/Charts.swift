@@ -1,5 +1,35 @@
 import SwiftUI
 
+// MARK: - Budget health ring (gamified 0–100 score)
+struct HealthRing: View {
+    let score: Int
+    let color: Color
+    var size: CGFloat = 90
+    @State private var progress: CGFloat = 0
+
+    var body: some View {
+        ZStack {
+            Circle().stroke(Theme.surface3, lineWidth: 10)
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(color, style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            VStack(spacing: -1) {
+                AnimatedInt(value: score).font(Theme.mono(24)).foregroundStyle(Theme.ink)
+                Text("/ 100").font(.system(size: 9, weight: .semibold)).foregroundStyle(Theme.muted)
+            }
+        }
+        .frame(width: size, height: size)
+        .onAppear { animate() }
+        .onChange(of: score) { _, _ in animate() }
+    }
+
+    private func animate() {
+        progress = 0
+        withAnimation(.easeOut(duration: 1.0)) { progress = CGFloat(score) / 100 }
+    }
+}
+
 // MARK: - Donut + legend (category spend breakdown)
 struct DonutBreakdown: View {
     let categories: [BudgetCategory]

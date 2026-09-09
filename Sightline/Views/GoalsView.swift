@@ -3,12 +3,14 @@ import SwiftUI
 struct GoalsView: View {
     @EnvironmentObject var store: AppStore
     @State private var newGoalText = ""
+    @State private var celebrate = false
+    @State private var confettiID = UUID()
 
     var body: some View {
         Screen(title: "Goals") {
             SectionHeader(title: "Your goals")
             ForEach(store.goals) { goal in
-                GoalCard(goal: goal)
+                GoalCard(goal: goal, onComplete: celebrateGoal)
                     .contextMenu {
                         Button(role: .destructive) { store.deleteGoal(goal) } label: {
                             Label("Delete goal", systemImage: "trash")
@@ -34,6 +36,7 @@ struct GoalsView: View {
                                 .padding(.horizontal, 16).padding(.vertical, 12)
                                 .background(Theme.accent, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                         }
+                        .buttonStyle(.pressable)
                     }
                 }
             }
@@ -60,6 +63,17 @@ struct GoalsView: View {
                 }
             }
         }
+        .overlay(alignment: .top) {
+            if celebrate {
+                ConfettiView().id(confettiID).frame(height: 460).allowsHitTesting(false)
+            }
+        }
+    }
+
+    private func celebrateGoal() {
+        confettiID = UUID()
+        celebrate = true
+        Haptics.success()
     }
 
     private func addGoal() {
@@ -75,7 +89,13 @@ struct GoalsView: View {
 }
 
 struct GoalCard: View {
+    @EnvironmentObject var store: AppStore
     let goal: Goal
+    var onComplete: () -> Void = {}
+
+    private var complete: Bool { goal.percent >= 100 }
+    private let quickAmounts: [Double] = [50, 100, 250]
+
     var body: some View {
         CardBox {
             VStack(alignment: .leading, spacing: 8) {
@@ -87,21 +107,41 @@ struct GoalCard: View {
                             .font(.system(size: 11.5)).foregroundStyle(Theme.muted)
                     }
                     Spacer()
-                    Text("\(goal.percent)%").font(.system(size: 11, weight: .bold))
+                    Text(complete ? "Reached 🎉" : "\(goal.percent)%")
+                        .font(.system(size: 11, weight: .bold))
                         .padding(.horizontal, 9).padding(.vertical, 4)
                         .background(Theme.goodSoft, in: Capsule()).foregroundStyle(Theme.good)
                 }
+
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text(Money.aud(goal.saved)).font(Theme.mono(24)).foregroundStyle(Theme.ink)
+                    AnimatedAUD(value: goal.saved).font(Theme.mono(24)).foregroundStyle(Theme.ink)
                     Text("/ \(Money.aud(goal.target))").font(Theme.mono(13)).foregroundStyle(Theme.muted)
                 }
                 .padding(.top, 4)
+
                 ProgressBar(fraction: goal.fraction, color: Theme.good)
-                if goal.perWeek > 0 {
-                    Label(goal.aheadOfPace ? "On pace — actually ahead of schedule" : "On pace to hit your target date",
-                          systemImage: "checkmark.circle.fill")
+
+                if complete {
+                    Label("Goal reached — nice work!", systemImage: "checkmark.seal.fill")
                         .font(.system(size: 11, weight: .bold)).foregroundStyle(Theme.good)
                         .padding(.top, 2)
+                } else {
+                    HStack(spacing: 8) {
+                        Text("Add:").font(.system(size: 12)).foregroundStyle(Theme.muted)
+                        ForEach(quickAmounts, id: \.self) { amt in
+                            Button {
+                                Haptics.light()
+                                if store.contributeToGoal(goal, amount: amt) { onComplete() }
+                            } label: {
+                                Text("+\(Money.aud(amt))")
+                                    .font(.system(size: 12, weight: .bold)).foregroundStyle(Theme.accentInk)
+                                    .padding(.horizontal, 12).padding(.vertical, 7)
+                                    .background(Theme.accentSoft, in: Capsule())
+                            }
+                            .buttonStyle(.pressable)
+                        }
+                    }
+                    .padding(.top, 4)
                 }
             }
         }

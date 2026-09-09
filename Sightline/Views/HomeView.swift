@@ -43,7 +43,7 @@ struct HomeView: View {
 
                 if let snap = store.snapshot {
                     heroCard(snap)
-                    overallBanner(snap)
+                    healthCard(snap)
 
                     SectionHeader(title: "Where it's going")
                     CardBox { DonutBreakdown(categories: store.categories) }
@@ -145,17 +145,29 @@ struct HomeView: View {
         .background(.white.opacity(0.14), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
-    private func overallBanner(_ snap: FinanceSnapshot) -> some View {
+    private func healthCard(_ snap: FinanceSnapshot) -> some View {
+        let band = store.healthBand
         let s = store.overallStatus
         let underPct = store.totalBudget > 0 ? Int((1 - store.totalSpent / store.totalBudget) * 100 + 0.5) : 0
         let overPct = store.totalBudget > 0 ? Int((store.totalSpent / store.totalBudget - 1) * 100 + 0.5) : 0
-        let content: (String, String, String)
+        let message: String
         switch s.kind {
-        case .good: content = ("🎉", "You're under budget", "Spending \(underPct)% less than your total budget this month — great work.")
-        case .warn: content = ("👀", "Getting close to budget", "You've used most of your budget for the month. Ease up where you can.")
-        case .bad:  content = ("🚩", "You're over budget", "You're \(overPct)% over your total budget this month.")
+        case .good: message = "Spending \(underPct)% under budget this month — keep it up! 🎉"
+        case .warn: message = "You've used most of your budget. Ease up where you can. 👀"
+        case .bad:  message = "You're \(overPct)% over budget this month. 🚩"
         }
-        return StatusBanner(emoji: content.0, title: content.1, detail: content.2, kind: s.kind)
+        return CardBox {
+            HStack(spacing: 16) {
+                HealthRing(score: store.healthScore, color: band.kind.color)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Budget health").font(.system(size: 12, weight: .semibold)).foregroundStyle(Theme.muted)
+                    Text(band.label).font(Theme.display(19)).foregroundStyle(band.kind.color)
+                    Text(message).font(.system(size: 12.5)).foregroundStyle(Theme.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                Spacer(minLength: 0)
+            }
+        }
     }
 }
 
