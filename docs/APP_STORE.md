@@ -27,7 +27,7 @@ an Apple Developer account, signing, or the App Store Connect website).
    *financial info* (budgets/transactions via your server), used for app functionality, not
    tracking. Keep it consistent with `PrivacyInfo.xcprivacy`.
 5. **Screenshots** — ready-to-upload 6.9" (1320×2868) shots are in `docs/appstore/`
-   (Home, Calendar, Goals, Cards). App Store Connect also asks for a 6.5" set — generate
+   (Home, Calendar month view, Goals, Cards, Settings — light mode, 9:41 status bar). App Store Connect also asks for a 6.5" set — generate
    those from an iPhone 15 Plus / 14 Plus simulator the same way if needed.
 6. **Backend for production** — the Node proxy in `server/` must be deployed to a public
    HTTPS host (not localhost), with a **production** Basiq key and CDR accreditation via
