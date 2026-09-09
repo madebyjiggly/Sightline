@@ -6,9 +6,7 @@ struct HomeView: View {
     @State private var editing: BudgetCategory?
     @State private var showNewCategory = false
     @State private var showManage = false
-    @State private var showAlerts = false
-    @State private var showConnection = false
-    @State private var showAppearance = false
+    @State private var showSettings = false
     @State private var celebrate = false
     @State private var confettiID = UUID()
     @State private var hasCelebrated = false
@@ -38,10 +36,9 @@ struct HomeView: View {
                         Text("Sightline").font(Theme.display(23, .heavy)).tracking(-0.5).foregroundStyle(Theme.ink)
                     }
                     Spacer(minLength: 6)
-                    Button { Haptics.light(); showConnection = true } label: { SourceBadge() }
+                    Button { Haptics.light(); showSettings = true } label: { SourceBadge() }
                         .buttonStyle(.plain)
-                    headerIcon("bell.fill", label: "Alerts") { showAlerts = true }
-                    headerIcon("circle.lefthalf.filled", label: "Appearance") { showAppearance = true }
+                    headerIcon("gearshape.fill", label: "Settings") { showSettings = true }
                 }
                 .padding(.top, 4)
 
@@ -112,9 +109,7 @@ struct HomeView: View {
         .sheet(item: $editing) { cat in BudgetEditor(category: cat) }
         .sheet(isPresented: $showNewCategory) { CategoryCreatorSheet() }
         .sheet(isPresented: $showManage) { ManageCategoriesSheet() }
-        .sheet(isPresented: $showAlerts) { AlertsSettingsSheet() }
-        .sheet(isPresented: $showConnection) { BankConnectionSheet() }
-        .sheet(isPresented: $showAppearance) { AppearanceSheet() }
+        .sheet(isPresented: $showSettings) { SettingsView() }
     }
 
     private func headerIcon(_ systemName: String, label: String, action: @escaping () -> Void) -> some View {
@@ -149,15 +144,20 @@ struct HomeView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Theme.heroGradient)
         // Decorative light: a soft glow top-left and a translucent orb top-right.
+        // Both overflow the card (clipped visually), so they must not take hits —
+        // otherwise they silently swallow taps on the header row above.
         .overlay(alignment: .topTrailing) {
             Circle().fill(.white.opacity(0.07)).frame(width: 190, height: 190).offset(x: 60, y: -80)
+                .allowsHitTesting(false)
         }
         .overlay(alignment: .topLeading) {
             RadialGradient(colors: [Theme.heroAccent.opacity(0.35), .clear],
                            center: .center, startRadius: 0, endRadius: 170)
                 .frame(width: 340, height: 340).offset(x: -110, y: -140)
+                .allowsHitTesting(false)
         }
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(.white.opacity(0.12), lineWidth: 1))
         .shadow(color: Theme.heroTop.opacity(0.35), radius: 24, x: 0, y: 14)
     }

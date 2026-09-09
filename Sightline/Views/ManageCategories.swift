@@ -1,32 +1,30 @@
 import SwiftUI
 
-struct ManageCategoriesSheet: View {
+/// Reorder / delete categories. Pushed inside the Settings hub, or wrapped by
+/// `ManageCategoriesSheet` when presented from Home.
+struct ManageCategoriesContent: View {
     @EnvironmentObject var store: AppStore
-    @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    ForEach(store.categories) { cat in
-                        row(cat).listRowBackground(Theme.surface)
-                    }
-                    .onMove(perform: store.moveCategories)
-                    .onDelete { idx in
-                        idx.map { store.categories[$0].id }.forEach(store.deleteCategory)
-                    }
-                } footer: {
-                    Text("Drag the handles to reorder · swipe a row to delete. Tap a category on the Home screen to rename it or change its budget.")
-                        .font(.system(size: 11.5)).foregroundStyle(Theme.faint)
+        List {
+            Section {
+                ForEach(store.categories) { cat in
+                    row(cat).listRowBackground(Theme.surface)
                 }
+                .onMove(perform: store.moveCategories)
+                .onDelete { idx in
+                    idx.map { store.categories[$0].id }.forEach(store.deleteCategory)
+                }
+            } footer: {
+                Text("Drag the handles to reorder · swipe a row to delete. Tap a category on the Home screen to rename it or change its budget.")
+                    .font(.system(size: 11.5)).foregroundStyle(Theme.faint)
             }
-            .scrollContentBackground(.hidden)
-            .background(Theme.bg)
-            .environment(\.editMode, .constant(.active))   // handles always visible
-            .navigationTitle("Manage categories")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
         }
+        .scrollContentBackground(.hidden)
+        .background(AppBackground())
+        .environment(\.editMode, .constant(.active))   // handles always visible
+        .navigationTitle("Categories")
+        .navigationBarTitleDisplayMode(.inline)
     }
 
     private func row(_ cat: BudgetCategory) -> some View {
@@ -41,5 +39,16 @@ struct ManageCategoriesSheet: View {
             Spacer()
         }
         .padding(.vertical, 4)
+    }
+}
+
+struct ManageCategoriesSheet: View {
+    @Environment(\.dismiss) var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ManageCategoriesContent()
+                .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+        }
     }
 }

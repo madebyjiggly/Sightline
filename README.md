@@ -23,9 +23,9 @@ what still needs an Apple Developer account. Licensed under [MIT](LICENSE).
 | :---: | :---: | :---: |
 | ![Home screen, light theme](docs/screenshots/home-light.png) | ![Home screen, dark theme](docs/screenshots/home-dark.png) | ![Calendar month view with daily heatmap](docs/screenshots/calendar-month.png) |
 
-| Goals | Cards |
-| :---: | :---: |
-| ![Goals with a guided planner](docs/screenshots/goals.png) | ![Accounts and cards](docs/screenshots/cards.png) |
+| Goals | Cards | Settings |
+| :---: | :---: | :---: |
+| ![Goals with a guided planner](docs/screenshots/goals.png) | ![Accounts and cards](docs/screenshots/cards.png) | ![Settings hub: account, bank connection, categories, alerts, appearance](docs/screenshots/settings.png) |
 
 ---
 
