@@ -8,6 +8,20 @@ struct HomeView: View {
     @State private var showAlerts = false
     @State private var showConnection = false
     @State private var showAppearance = false
+    @State private var celebrate = false
+    @State private var confettiID = UUID()
+    @State private var hasCelebrated = false
+
+    /// Confetti when you're comfortably under budget. Auto-fires once per session
+    /// after data loads; `force` replays it on pull-to-refresh.
+    private func celebrateIfUnder(force: Bool = false) {
+        guard store.totalBudget > 0, store.overallStatus.kind == .good else { celebrate = false; return }
+        guard force || !hasCelebrated else { return }
+        hasCelebrated = true
+        confettiID = UUID()
+        celebrate = true
+        Haptics.success()
+    }
 
     var body: some View {
         ScrollView {
@@ -20,7 +34,7 @@ struct HomeView: View {
                         Text("Sightline").font(Theme.display(22, .heavy)).foregroundStyle(Theme.ink)
                     }
                     Spacer(minLength: 6)
-                    Button { showConnection = true } label: { SourceBadge() }
+                    Button { Haptics.light(); showConnection = true } label: { SourceBadge() }
                         .buttonStyle(.plain)
                     headerIcon("bell.fill", label: "Alerts") { showAlerts = true }
                     headerIcon("circle.lefthalf.filled", label: "Appearance") { showAppearance = true }
@@ -34,16 +48,17 @@ struct HomeView: View {
                     SectionHeader(title: "Where it's going")
                     CardBox { DonutBreakdown(categories: store.categories) }
 
-                    SectionHeader(title: "Budgets", link: "Manage") { showManage = true }
+                    SectionHeader(title: "Budgets", link: "Manage") { Haptics.light(); showManage = true }
                     CardBox(padding: 0) {
                         VStack(spacing: 0) {
                             ForEach(Array(store.categories.enumerated()), id: \.element.id) { idx, cat in
                                 if idx > 0 { Divider().overlay(Theme.line) }
-                                CategoryRow(category: cat).onTapGesture { editing = cat }
+                                CategoryRow(category: cat).onTapGesture { Haptics.light(); editing = cat }
                             }
                         }
                     }
                     Button {
+                        Haptics.light()
                         showNewCategory = true
                     } label: {
                         HStack(spacing: 8) {
@@ -55,6 +70,7 @@ struct HomeView: View {
                         .background(RoundedRectangle(cornerRadius: 16, style: .continuous)
                             .stroke(style: StrokeStyle(lineWidth: 1.5, dash: [6])).foregroundStyle(Theme.lineStrong))
                     }
+                    .buttonStyle(.pressable)
                     Text("Tap a category to adjust its budget, or add your own.")
                         .font(.system(size: 11)).foregroundStyle(Theme.faint).padding(.horizontal, 4)
                 } else {
@@ -65,6 +81,18 @@ struct HomeView: View {
             .padding(.bottom, 24)
         }
         .background(Theme.bg)
+        .refreshable {
+            Haptics.select()
+            await store.load()
+            celebrateIfUnder(force: true)
+        }
+        .overlay(alignment: .top) {
+            if celebrate {
+                ConfettiView().id(confettiID).frame(height: 420).allowsHitTesting(false)
+            }
+        }
+        .onChange(of: store.isLoading) { _, loading in if !loading { celebrateIfUnder() } }
+        .onAppear { celebrateIfUnder() }
         .sheet(item: $editing) { cat in BudgetEditor(category: cat) }
         .sheet(isPresented: $showNewCategory) { CategoryCreatorSheet() }
         .sheet(isPresented: $showManage) { ManageCategoriesSheet() }
@@ -74,7 +102,7 @@ struct HomeView: View {
     }
 
     private func headerIcon(_ systemName: String, label: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        Button(action: { Haptics.light(); action() }) {
             Image(systemName: systemName)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Theme.accentInk)
@@ -90,7 +118,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text("Left to spend · \(snap.period)")
                 .font(.system(size: 12, weight: .semibold)).foregroundStyle(.white.opacity(0.85))
-            Text(Money.aud(store.leftToSpend)).font(Theme.mono(38)).foregroundStyle(.white)
+            AnimatedAUD(value: store.leftToSpend).font(Theme.mono(38)).foregroundStyle(.white)
                 .padding(.top, 4)
             Text("of \(Money.aud(store.totalBudget)) budgeted · \(Money.aud(store.totalSpent)) spent so far")
                 .font(.system(size: 12.5)).foregroundStyle(.white.opacity(0.9))
@@ -259,10 +287,12 @@ struct BudgetEditor: View {
         let newName = name.trimmingCharacters(in: .whitespaces)
         if newName != category.name, let err = store.renameCategory(for: category.id, to: newName) {
             errorText = err
+            Haptics.warning()
             return
         }
         store.updateBudget(for: category.id, to: amount)
         store.updateKeywords(for: category.id, keywords: keywordsText.split(separator: ",").map(String.init))
+        Haptics.success()
         dismiss()
     }
 }

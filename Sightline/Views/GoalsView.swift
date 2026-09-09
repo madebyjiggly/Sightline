@@ -70,6 +70,7 @@ struct GoalsView: View {
         let target = Double(digits) ?? 1000
         store.addGoal(name: text, target: target, dateLabel: "Set a date")
         newGoalText = ""
+        Haptics.success()
     }
 }
 

@@ -2,19 +2,21 @@ import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var store: AppStore
+    @State private var tab = 0
 
     var body: some View {
-        TabView {
+        TabView(selection: $tab) {
             HomeView()
-                .tabItem { Label("Home", systemImage: "house.fill") }
+                .tabItem { Label("Home", systemImage: "house.fill") }.tag(0)
             CalendarView()
-                .tabItem { Label("Calendar", systemImage: "calendar") }
+                .tabItem { Label("Calendar", systemImage: "calendar") }.tag(1)
             GoalsView()
-                .tabItem { Label("Goals", systemImage: "target") }
+                .tabItem { Label("Goals", systemImage: "target") }.tag(2)
             CardsView()
-                .tabItem { Label("Cards", systemImage: "creditcard.fill") }
+                .tabItem { Label("Cards", systemImage: "creditcard.fill") }.tag(3)
         }
         .tint(Theme.accent)
+        .onChange(of: tab) { _, _ in Haptics.select() }
     }
 }
 

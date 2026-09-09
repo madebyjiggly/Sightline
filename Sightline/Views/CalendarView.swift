@@ -13,6 +13,7 @@ struct CalendarView: View {
                 ForEach(CalMode.allCases) { Text($0.rawValue).tag($0) }
             }
             .pickerStyle(.segmented)
+            .onChange(of: mode) { _, _ in Haptics.select() }
 
             if let snap = store.snapshot {
                 switch mode {
@@ -84,7 +85,7 @@ struct CalendarView: View {
     private func heroTotal(label: String, value: Double, sub: String) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(label).font(.system(size: 12, weight: .semibold)).foregroundStyle(.white.opacity(0.85))
-            Text(Money.aud(value)).font(Theme.mono(38)).foregroundStyle(.white).padding(.top, 4)
+            AnimatedAUD(value: value).font(Theme.mono(38)).foregroundStyle(.white).padding(.top, 4)
             Text(sub).font(.system(size: 12.5)).foregroundStyle(.white.opacity(0.9))
         }
         .padding(20)

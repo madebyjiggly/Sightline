@@ -51,15 +51,20 @@ struct ProgressBar: View {
     let fraction: Double
     let color: Color
     var height: CGFloat = 8
+    @State private var shown: Double = 0
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
                 Capsule().fill(Theme.surface3)
                 Capsule().fill(color)
-                    .frame(width: max(height, geo.size.width * fraction))
+                    .frame(width: max(height, geo.size.width * shown))
             }
         }
         .frame(height: height)
+        .onAppear { withAnimation(.spring(response: 0.7, dampingFraction: 0.85)) { shown = fraction } }
+        .onChange(of: fraction) { _, f in
+            withAnimation(.spring(response: 0.55, dampingFraction: 0.8)) { shown = f }
+        }
     }
 }
 

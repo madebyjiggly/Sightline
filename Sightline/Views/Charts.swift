@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Donut + legend (category spend breakdown)
 struct DonutBreakdown: View {
     let categories: [BudgetCategory]
+    @State private var progress: CGFloat = 0
 
     private var total: Double { max(1, categories.reduce(0) { $0 + $1.spent }) }
 
@@ -11,7 +12,7 @@ struct DonutBreakdown: View {
             ZStack {
                 ForEach(segments()) { seg in
                     Circle()
-                        .trim(from: seg.start, to: seg.end)
+                        .trim(from: seg.start, to: seg.start + (seg.end - seg.start) * progress)
                         .stroke(seg.color, style: StrokeStyle(lineWidth: 16, lineCap: .butt))
                         .rotationEffect(.degrees(-90))
                 }
@@ -20,8 +21,14 @@ struct DonutBreakdown: View {
                         .font(Theme.mono(18)).foregroundStyle(Theme.ink)
                     Text("spent").font(.system(size: 10)).foregroundStyle(Theme.muted)
                 }
+                .opacity(Double(progress))
             }
             .frame(width: 132, height: 132)
+            .onAppear { withAnimation(.easeOut(duration: 1.0)) { progress = 1 } }
+            .onChange(of: categories) { _, _ in
+                progress = 0
+                withAnimation(.easeOut(duration: 0.8)) { progress = 1 }
+            }
 
             VStack(alignment: .leading, spacing: 7) {
                 ForEach(categories) { c in
@@ -52,6 +59,7 @@ struct DonutBreakdown: View {
 struct WeeklyBars: View {
     let week: [DaySpend]
     var onSelect: (DaySpend) -> Void = { _ in }
+    @State private var grow: CGFloat = 0
 
     private var maxVal: Double { max(1, week.map { $0.total }.max() ?? 1) }
 
@@ -66,7 +74,7 @@ struct WeeklyBars: View {
                             Spacer(minLength: 0)
                             RoundedRectangle(cornerRadius: 6, style: .continuous)
                                 .fill(Theme.accent)
-                                .frame(height: max(4, geo.size.height * CGFloat(day.total / maxVal)))
+                                .frame(height: max(4, geo.size.height * CGFloat(day.total / maxVal) * grow))
                                 .overlay(
                                     day.isToday ?
                                     RoundedRectangle(cornerRadius: 6).stroke(Theme.accentSoft, lineWidth: 3) : nil
@@ -79,10 +87,11 @@ struct WeeklyBars: View {
                 }
                 .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
-                .onTapGesture { onSelect(day) }
+                .onTapGesture { Haptics.light(); onSelect(day) }
             }
         }
         .frame(height: 130)
+        .onAppear { grow = 0; withAnimation(.spring(response: 0.8, dampingFraction: 0.8)) { grow = 1 } }
     }
 }
 
