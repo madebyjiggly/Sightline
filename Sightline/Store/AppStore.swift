@@ -141,14 +141,26 @@ final class AppStore: ObservableObject {
         }
     }
 
+    private func flashOver(_ key: String) {
+        Haptics.warning()
+        flashOverKey = key
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+            if self.flashOverKey == key { self.flashOverKey = nil }
+        }
+    }
+
     /// Ask the notifier to fire alerts for any newly over-budget categories.
     func reevaluateAlerts() {
         NotificationManager.shared.evaluate(categories: categories, period: snapshot?.period ?? "")
     }
 
+    /// Key of a category that just crossed under → over (drives a red flash).
+    @Published var flashOverKey: String?
+
     // MARK: - Category mutations
     func updateBudget(for id: BudgetCategory.ID, to amount: Double) {
         guard let cat = categories.first(where: { $0.id == id }) else { return }
+        let wasOver = cat.status.kind == .bad
         let items = budgetItemsByKey()
         if let item = items[cat.key] {
             item.budget = max(0, amount)
@@ -158,6 +170,11 @@ final class AppStore: ObservableObject {
         }
         save()
         if let snap = snapshot { rebuildCategories(from: snap) }
+        // Flash + warn if this edit pushed the category over budget.
+        if !wasOver, let updated = categories.first(where: { $0.key == cat.key }),
+           updated.status.kind == .bad {
+            flashOver(updated.key)
+        }
         reevaluateAlerts()   // a lowered budget may push a category over
     }
 

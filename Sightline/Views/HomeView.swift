@@ -54,7 +54,8 @@ struct HomeView: View {
                         VStack(spacing: 0) {
                             ForEach(Array(store.categories.enumerated()), id: \.element.id) { idx, cat in
                                 if idx > 0 { Divider().overlay(Theme.line) }
-                                CategoryRow(category: cat).onTapGesture { Haptics.light(); editing = cat }
+                                CategoryRow(category: cat, glow: store.flashOverKey == cat.key)
+                                    .onTapGesture { Haptics.light(); editing = cat }
                             }
                         }
                     }
@@ -175,6 +176,8 @@ struct HomeView: View {
 // MARK: - Category row
 struct CategoryRow: View {
     let category: BudgetCategory
+    var glow: Bool = false
+    @State private var flashOn = false
     var body: some View {
         let s = category.status
         VStack(alignment: .leading, spacing: 9) {
@@ -198,7 +201,22 @@ struct CategoryRow: View {
             }
         }
         .padding(14)
+        .background(flashOn ? Theme.badSoft : Color.clear)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(Theme.bad.opacity(flashOn ? 0.9 : 0), lineWidth: 2.5)
+                .padding(4)
+        )
         .contentShape(Rectangle())
+        .onAppear { if glow { pulse() } }
+        .onChange(of: glow) { _, g in if g { pulse() } }
+    }
+
+    private func pulse() {
+        withAnimation(.easeOut(duration: 0.2)) { flashOn = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+            withAnimation(.easeInOut(duration: 0.6)) { flashOn = false }
+        }
     }
 }
 
