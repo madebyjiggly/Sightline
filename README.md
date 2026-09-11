@@ -15,7 +15,9 @@ It runs **right now on realistic AUD sample data** — no keys or backend requir
 switches to a **live Basiq sandbox** with a few steps.
 
 Heading for the App Store? See [`docs/APP_STORE.md`](docs/APP_STORE.md) for what's done and
-what still needs an Apple Developer account. Licensed under [MIT](LICENSE).
+what still needs an Apple Developer account. To put the proxy on the public internet and
+turn on live bank data, follow [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+Licensed under [MIT](LICENSE).
 
 ## Screenshots
 
