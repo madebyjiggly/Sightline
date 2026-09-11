@@ -29,10 +29,7 @@ an Apple Developer account, signing, or the App Store Connect website).
 5. **Screenshots** — ready-to-upload 6.9" (1320×2868) shots are in `docs/appstore/`
    (Home, Calendar month view, Goals, Cards, Settings — light mode, 9:41 status bar). App Store Connect also asks for a 6.5" set — generate
    those from an iPhone 15 Plus / 14 Plus simulator the same way if needed.
-6. **Backend for production** — the Node proxy in `server/` must be deployed to a public
-   HTTPS host (not localhost), with a **production** Basiq key and CDR accreditation via
-   Basiq. Point the app's proxy URL at it.
-7. **Archive & upload** — Xcode → *Product → Archive* → *Distribute App → App Store Connect*
+6. **Archive & upload** — Xcode → *Product → Archive* → *Distribute App → App Store Connect*
    (needs signing from step 2). Then submit for review in App Store Connect.
 
 ## Suggested listing copy (draft — tweak freely)
@@ -57,6 +54,12 @@ an Apple Developer account, signing, or the App Store Connect website).
   > Your bank login is never seen by Sightline — you sign in on your bank's own page.
 
 ## Notes
-- The app runs on sample data with no backend, so it's demoable without any of the above.
-- Real bank data additionally needs Basiq **production** access + the in-app Basiq Connect
-  consent flow (already built).
+- **v1 ships sample-data only** (`AppConfig.bankLinkingEnabled = false`): sign-in and bank
+  linking are hidden behind "Coming soon" so review never hits a dead endpoint. The app
+  needs no backend at all in this mode.
+- With no accounts and no bank data collected, the privacy nutrition label for v1 is
+  simply **"Data not collected"** — simpler than step 4 above suggests.
+- To enable live data later: deploy the Node proxy in `server/` to public HTTPS with a
+  **production** Basiq key (CDR accreditation via Basiq), point the app's default proxy
+  URL at it, and flip `AppConfig.bankLinkingEnabled` to true — auth, consent flow and
+  live snapshots are already built.

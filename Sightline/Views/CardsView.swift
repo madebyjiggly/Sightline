@@ -107,17 +107,28 @@ struct LinkAccountSheet: View {
                               systemImage: store.isLive ? "checkmark.seal.fill" : "info.circle.fill")
                             .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(store.isLive ? Theme.good : Theme.warn)
-                        Text("In the live app, tapping this opens your bank's secure consent screen through Basiq (Australia's CDR / open-banking network). Sightline receives read-only access to balances and transactions — never your login.")
+                        Text("Bank linking opens your bank's secure consent screen through Basiq (Australia's CDR / open-banking network). Sightline receives read-only access to balances and transactions — never your login.")
                             .font(.system(size: 13)).foregroundStyle(Theme.muted)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                CardBox {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("To enable live data").font(.system(size: 13, weight: .bold)).foregroundStyle(Theme.ink)
-                        stepRow("1", "Run the Sightline proxy in server/ with your Basiq API key")
-                        stepRow("2", "Set BackendConfig.baseURL to the proxy URL")
-                        stepRow("3", "Flip AppStore.useLiveData to true")
+                if AppConfig.bankLinkingEnabled {
+                    CardBox {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("To enable live data").font(.system(size: 13, weight: .bold)).foregroundStyle(Theme.ink)
+                            stepRow("1", "Run the Sightline proxy in server/ with your Basiq API key")
+                            stepRow("2", "Set BackendConfig.baseURL to the proxy URL")
+                            stepRow("3", "Flip AppStore.useLiveData to true")
+                        }
+                    }
+                } else {
+                    CardBox {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Coming soon").font(.system(size: 13, weight: .bold)).foregroundStyle(Theme.ink)
+                            Text("Live bank connections aren't available in this version yet. Everything you see runs on realistic sample data — budgets, goals and alerts are fully yours to use in the meantime.")
+                                .font(.system(size: 12.5)).foregroundStyle(Theme.muted)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
                 }
             }

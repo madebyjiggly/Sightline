@@ -17,14 +17,21 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Screen(title: "Settings") {
-                accountCard
+                if AppConfig.bankLinkingEnabled {
+                    accountCard
+                }
 
                 SectionHeader(title: "Money")
                 SettingsGroup {
-                    NavigationLink { BankConnectionContent() } label: {
+                    if AppConfig.bankLinkingEnabled {
+                        NavigationLink { BankConnectionContent() } label: {
+                            SettingsRow(icon: "building.columns.fill", tint: Theme.accent,
+                                        title: "Bank connection",
+                                        value: store.isLive ? "Live · Basiq" : "Sample data")
+                        }
+                    } else {
                         SettingsRow(icon: "building.columns.fill", tint: Theme.accent,
-                                    title: "Bank connection",
-                                    value: store.isLive ? "Live · Basiq" : "Sample data")
+                                    title: "Bank connection", value: "Coming soon", chevron: .none)
                     }
                     SettingsDivider()
                     NavigationLink { ManageCategoriesContent() } label: {
