@@ -4,7 +4,7 @@ import Foundation
 // server and is never shipped in the app. Point this at your running proxy.
 enum BackendConfig {
     private static let urlKey = "backend.url"
-    static let defaultURLString = "http://localhost:4000"
+    static let defaultURLString = "https://sightline-proxy-production.up.railway.app"
 
     /// The proxy URL, editable in-app (Home → tap the data-source badge) and persisted.
     static var baseURLString: String {

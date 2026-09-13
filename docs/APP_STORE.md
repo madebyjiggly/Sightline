@@ -63,3 +63,12 @@ an Apple Developer account, signing, or the App Store Connect website).
   **production** Basiq key (CDR accreditation via Basiq), point the app's default proxy
   URL at it, and flip `AppConfig.bankLinkingEnabled` to true — auth, consent flow and
   live snapshots are already built.
+
+## v1.1 (in repo, ships after 1.0 clears review)
+- Live bank linking is ON (`AppConfig.bankLinkingEnabled = true`) against the deployed
+  proxy (`https://sightline-proxy-production.up.railway.app`, sandbox Basiq key).
+- When 1.0 is approved/released, create version 1.1 in App Store Connect and:
+  update the description (drop the "coming soon" line), change the privacy label to
+  *email + financial info, linked to you, app functionality*, provide a demo
+  sign-in for App Review (Sign-in required + a test account), and for REAL bank data
+  swap the proxy's sandbox key for a Basiq production key.

@@ -136,14 +136,13 @@ struct BankConnectionContent: View {
 
             CardBox {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Set up the proxy").font(.system(size: 13, weight: .bold)).foregroundStyle(Theme.ink)
-                    step("1", "Get a free sandbox key at dashboard.basiq.io.")
-                    step("2", "In server/: copy .env.example to .env and paste your key into BASIQ_API_KEY.")
-                    step("3", "Run npm run seed, then put the printed BASIQ_USER_ID into .env.")
-                    step("4", "Run npm start, then flip the switch above and tap Test connection.")
-                    Text("Your key stays on the server — the app only talks to the proxy.")
+                    Text("About the proxy").font(.system(size: 13, weight: .bold)).foregroundStyle(Theme.ink)
+                    Text("Sightline talks to its hosted proxy by default — no setup needed. The proxy holds the bank-data API key; the app never sees it.")
+                        .font(.system(size: 12.5)).foregroundStyle(Theme.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Text("Self-hosting? Deploy the server/ folder (see docs/DEPLOYMENT.md in the repo) and point the URL above at it.")
                         .font(.system(size: 11.5)).foregroundStyle(Theme.faint)
-                        .fixedSize(horizontal: false, vertical: true).padding(.top, 2)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
         }
@@ -155,15 +154,6 @@ struct BankConnectionContent: View {
             SafariView(url: item.url).ignoresSafeArea()
         }
         .sheet(isPresented: $showAuth) { AuthView() }
-    }
-
-    private func step(_ n: String, _ text: String) -> some View {
-        HStack(alignment: .top, spacing: 10) {
-            Text(n).font(.system(size: 12, weight: .heavy)).foregroundStyle(Theme.accentInk)
-                .frame(width: 22, height: 22).background(Theme.accentSoft, in: Circle())
-            Text(text).font(.system(size: 12.5)).foregroundStyle(Theme.muted)
-                .fixedSize(horizontal: false, vertical: true)
-        }
     }
 }
 
