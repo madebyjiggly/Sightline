@@ -65,6 +65,7 @@ async function api(path, { method = 'GET', body } = {}) {
 
 export const Basiq = {
   createUser: (email, mobile) => api('/users', { method: 'POST', body: { email, mobile } }),
+  getUser: (userId) => api(`/users/${userId}`),
   getAccounts: (userId) => api(`/users/${userId}/accounts`),
   getTransactions: (userId, limit = 500) => api(`/users/${userId}/transactions?limit=${limit}`),
   /** Create a connection to a sandbox test bank (institution AU00000). */

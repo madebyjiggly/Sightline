@@ -35,10 +35,20 @@ function requireAuth(req, res, next) {
   next();
 }
 
-// Each signed-in user gets their own Basiq user, created on demand.
+// Each signed-in user gets their own Basiq user, created on demand. If the
+// stored id no longer exists (e.g. the Basiq application or API key was
+// rotated), self-heal by creating a fresh one.
 async function ensureBasiqUserFor(appUserId) {
   const u = auth.userById(appUserId);
-  if (u?.basiqUserId) return u.basiqUserId;
+  if (u?.basiqUserId) {
+    try {
+      await Basiq.getUser(u.basiqUserId);
+      return u.basiqUserId;
+    } catch (e) {
+      if (!String(e.message).includes('404')) throw e;
+      console.log('Stale Basiq user for', u.email, '— recreating');
+    }
+  }
   const created = await Basiq.createUser(u.email, process.env.SEED_MOBILE || '+61410000000');
   auth.setBasiqUserId(appUserId, created.id);
   console.log('Created Basiq user for', u.email, '→', created.id);
