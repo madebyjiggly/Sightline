@@ -6,23 +6,27 @@ struct RootView: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            HomeView()
-                .tag(AppTab.home)
-                .toolbar(.hidden, for: .tabBar)
-            CalendarView()
-                .tag(AppTab.calendar)
-                .toolbar(.hidden, for: .tabBar)
-            GoalsView()
-                .tag(AppTab.goals)
-                .toolbar(.hidden, for: .tabBar)
-            CardsView()
-                .tag(AppTab.cards)
-                .toolbar(.hidden, for: .tabBar)
+            tabRoot(HomeView()).tag(AppTab.home)
+            tabRoot(CalendarView()).tag(AppTab.calendar)
+            tabRoot(GoalsView()).tag(AppTab.goals)
+            tabRoot(CardsView()).tag(AppTab.cards)
         }
         .tint(Theme.accent)
-        // Our own floating bar; safeAreaInset keeps content from scrolling under it.
-        .safeAreaInset(edge: .bottom) { FloatingTabBar(selection: $tab) }
+        // Our own floating bar. It is drawn as an overlay; each tab root gets a
+        // matching bottom safe-area spacer (a safeAreaInset on the TabView itself
+        // does NOT propagate into the tabs' scroll views on device, which let
+        // content hide underneath the bar).
+        .overlay(alignment: .bottom) { FloatingTabBar(selection: $tab) }
         .onChange(of: tab) { _, _ in Haptics.select() }
+    }
+
+    /// Hides the system tab bar and reserves scroll space for the floating one.
+    private func tabRoot<V: View>(_ view: V) -> some View {
+        view
+            .toolbar(.hidden, for: .tabBar)
+            .safeAreaInset(edge: .bottom) {
+                Color.clear.frame(height: FloatingTabBar.reservedHeight)
+            }
     }
 }
 

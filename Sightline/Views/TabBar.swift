@@ -24,6 +24,10 @@ enum AppTab: Int, CaseIterable, Identifiable {
 
 /// A floating glass tab bar with a spring-sliding selection pill and bouncing icons.
 struct FloatingTabBar: View {
+    /// Height the tab roots reserve at the bottom so scrolled content always
+    /// clears the bar (capsule ≈ 60pt + vertical margins).
+    static let reservedHeight: CGFloat = 78
+
     @Binding var selection: AppTab
     @Namespace private var pillNamespace
 
