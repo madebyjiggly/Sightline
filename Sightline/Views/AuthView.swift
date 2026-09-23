@@ -1,8 +1,10 @@
 import SwiftUI
 
-struct AuthView: View {
+/// The email/password form. Used by the AuthView sheet and the onboarding flow.
+struct AuthContent: View {
     @EnvironmentObject var auth: AuthManager
-    @Environment(\.dismiss) var dismiss
+    /// Called after a successful sign-in or registration.
+    var onFinished: () -> Void = {}
 
     enum Mode { case signIn, register }
     @State private var mode: Mode = .signIn
@@ -16,8 +18,7 @@ struct AuthView: View {
     private var title: String { mode == .signIn ? "Sign in" : "Create account" }
 
     var body: some View {
-        NavigationStack {
-            Screen(title: title) {
+        Screen(title: title) {
                 CardBox {
                     VStack(alignment: .leading, spacing: 14) {
                         Text(mode == .signIn ? "Welcome back." : "Create your Sightline account to connect a real bank and sync across devices.")
@@ -69,10 +70,7 @@ struct AuthView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
                     .multilineTextAlignment(.center)
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
-            .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { focus = .email } }
-        }
+        .onAppear { DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { focus = .email } }
     }
 
     private var canSubmit: Bool {
@@ -86,7 +84,7 @@ struct AuthView: View {
                 if mode == .signIn { try await auth.signIn(email: email, password: password) }
                 else { try await auth.register(email: email, password: password) }
                 loading = false
-                dismiss()
+                onFinished()
             } catch {
                 self.error = error.localizedDescription
                 loading = false
@@ -102,6 +100,19 @@ struct AuthView: View {
                 .padding(13)
                 .background(Theme.surface2, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Theme.line, lineWidth: 1))
+        }
+    }
+}
+
+/// Sheet presentation of the auth form (used from Settings / Bank connection).
+struct AuthView: View {
+    @Environment(\.dismiss) var dismiss
+
+    var body: some View {
+        NavigationStack {
+            AuthContent(onFinished: { dismiss() })
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
         }
     }
 }

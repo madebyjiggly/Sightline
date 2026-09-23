@@ -10,6 +10,7 @@ struct SightlineApp: App {
     @StateObject private var streak = StreakManager.shared
     private let notifier = NotificationManager.shared
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("hasOnboarded") private var hasOnboarded = false
 
     init() {
         let schema = Schema([BudgetItem.self, GoalItem.self])
@@ -33,7 +34,15 @@ struct SightlineApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
+            Group {
+                // First launch: intro page → login page. Signed-in users (and
+                // anyone who finished or skipped it once) go straight in.
+                if hasOnboarded || auth.isAuthenticated {
+                    RootView()
+                } else {
+                    OnboardingFlow()
+                }
+            }
                 .environmentObject(store)
                 .environmentObject(notifier)
                 .environmentObject(theme)
