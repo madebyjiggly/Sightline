@@ -60,3 +60,7 @@ export function setBasiqUserId(id, basiqUserId) {
   const u = userById(id);
   if (u) { u.basiqUserId = basiqUserId; persist(db); }
 }
+export function setFiskilEndUserId(id, fiskilEndUserId) {
+  const u = userById(id);
+  if (u) { u.fiskilEndUserId = fiskilEndUserId; persist(db); }
+}

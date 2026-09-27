@@ -4,6 +4,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { Basiq, clientToken, mapAccount, mapTransaction } from './basiq.js';
+import * as Fiskil from './fiskil.js';
 import * as auth from './auth.js';
 
 const app = express();
@@ -12,8 +13,11 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 4000;
 
+// Which open-banking provider backs /me/*: "basiq" (default) or "fiskil".
+const PROVIDER = (process.env.BANK_PROVIDER || 'basiq').toLowerCase();
+
 // Health check
-app.get('/', (_req, res) => res.json({ ok: true, service: 'sightline-proxy' }));
+app.get('/', (_req, res) => res.json({ ok: true, service: 'sightline-proxy', provider: PROVIDER }));
 
 // ---- Auth -----------------------------------------------------------------
 app.post('/auth/register', (req, res) => {
@@ -59,6 +63,10 @@ async function ensureBasiqUserFor(appUserId) {
 // app opens. The user picks their bank and logs in on the bank's own page.
 app.get('/me/connect-token', requireAuth, async (req, res) => {
   try {
+    if (PROVIDER === 'fiskil') {
+      const endUserId = await ensureFiskilUserFor(req.userId);
+      return res.json({ consentUrl: await Fiskil.consentUrl(endUserId) });
+    }
     const uid = await ensureBasiqUserFor(req.userId);
     const token = await clientToken(uid);
     res.json({
@@ -71,12 +79,26 @@ app.get('/me/connect-token', requireAuth, async (req, res) => {
   }
 });
 
+// Each signed-in user gets their own Fiskil end user, created on demand.
+async function ensureFiskilUserFor(appUserId) {
+  const u = auth.userById(appUserId);
+  if (u?.fiskilEndUserId) return u.fiskilEndUserId;
+  const id = await Fiskil.createEndUser(u.email);
+  auth.setFiskilEndUserId(appUserId, id);
+  console.log('Created Fiskil end user for', u.email, '→', id);
+  return id;
+}
+
 // The one data endpoint the app calls. The app POSTs its category rules
 // ({ categories: [{ key, keywords }] }) so we can tag each transaction onto the
 // user's own categories — including custom ones — before returning them.
 app.post('/me/snapshot', requireAuth, async (req, res) => {
   try {
     const rules = Array.isArray(req.body?.categories) ? req.body.categories : [];
+    if (PROVIDER === 'fiskil') {
+      const endUserId = await ensureFiskilUserFor(req.userId);
+      return res.json(await Fiskil.snapshot(endUserId, rules));
+    }
     const basiqUserId = await ensureBasiqUserFor(req.userId);
     const [accountsRes, txnRes] = await Promise.all([
       Basiq.getAccounts(basiqUserId),

@@ -102,7 +102,7 @@ final class AppStore: ObservableObject {
         do {
             let (data, resp) = try await URLSession.shared.data(for: request)
             guard let http = resp as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-                return (nil, "The proxy couldn't start a bank connection. Check that it's running with a valid Basiq key.")
+                return (nil, "The proxy couldn't start a bank connection. Try again in a moment.")
             }
             let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any]
             if let s = obj?["consentUrl"] as? String, let u = URL(string: s) { return (u, nil) }
